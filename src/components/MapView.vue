@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { loadAmap } from '../composables/useAmap'
-import { MAP_STYLE, SHANGHAI_CENTER } from '../config'
+import { MAP_STYLE, SHANGHAI_CENTER, inDowntown } from '../config'
 import { categoryMap, restaurants } from '../data/restaurants'
 import { filteredRestaurants, pushToast, store } from '../store'
 import type { Restaurant } from '../types'
@@ -212,12 +212,18 @@ onMounted(async () => {
   map.on('zoomend', syncLabels)
 
   // 首开一屏看全：让视野刚好包住所有门店（给左侧面板/底部抽屉留出内边距）
+  // 首开只看市中心：视野包住市中心的门店（给左侧面板/底部抽屉留内边距），
+  // 远郊门店不撑大初始视野
+  const downtownMarkers = restaurants
+    .filter((r) => inDowntown(r.lng, r.lat))
+    .map((r) => markers.get(r.id))
+    .filter((m): m is AMap.Marker => Boolean(m))
   const isMobile = window.innerWidth < 768
   map.setFitView(
-    [...markers.values()],
+    downtownMarkers.length ? downtownMarkers : [...markers.values()],
     false,
     isMobile ? [32, 24, 140, 24] : [48, 48, 48, 446],
-    13.5,
+    13,
   )
   setTimeout(syncLabels, 800)
   store.mapReady = true
