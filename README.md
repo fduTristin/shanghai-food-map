@@ -51,6 +51,25 @@ npm run preview  # 预览构建产物
 - 右下角按钮获取我的当前位置（蓝点 + 精度圈），列表显示「距我 xx km」
 - 移动端为底部抽屉布局
 
+## 部署到 GitHub Pages
+
+认证流程（一次配置，之后 push 即自动部署）：
+
+1. 仓库 → **Settings → Secrets and variables → Actions → New repository secret**，添加两个 secret：
+   - `VITE_AMAP_KEY`（你的高德 Key）
+   - `VITE_AMAP_SECURITY_CODE`（对应的安全密钥）
+2. 仓库 → **Settings → Pages → Source** 选 **GitHub Actions**。
+3. 高德开放平台控制台 → 该 Key 的**域名白名单**里加上 `<用户名>.github.io`，以及本地开发用的 `localhost`、`127.0.0.1`（局域网 IP 访问的 referer 是 IP，加了白名单后手机局域网访问可能失效，两个方案二选一：白名单内加当时的局域网 IP，或自用阶段先不设白名单、仅部署版启用）。
+4. push 到 `main` 分支即触发构建部署。站点地址：
+   - 项目页：`https://<用户名>.github.io/<仓库名>/`
+   - 用户主页（仓库名为 `<用户名>.github.io`）：`https://<用户名>.github.io/`
+   - 工作流已自动区分两种 base 路径，无需改配置。
+
+注意：
+
+- Vite 的环境变量在**构建期**内联进 JS 产物，Key 对访客可见——这是所有浏览器端地图 Key 的通用做法，请务必在高德控制台为该 Key 配置**域名白名单**。
+- GitHub Pages 在大陆访问不稳定，如果自用频率高可考虑 Cloudflare Pages / 腾讯 EdgeOne Pages。
+
 ## 备注
 
 - 浏览器定位要求页面运行在 **HTTPS 或 localhost** 下，并授予定位权限。
