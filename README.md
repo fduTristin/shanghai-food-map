@@ -1,0 +1,58 @@
+# 沪上食图 · 上海美食地图
+
+个人使用的上海美食地图。Vue 3 + Vite + TypeScript，高德地图 JS API，纯前端静态数据，无后端。
+
+## 首次使用：配置高德 Key（必填）
+
+1. 打开 [高德开放平台控制台](https://console.amap.com/dev/key/app)，创建应用并添加 Key，服务平台选择 **「Web端(JS API)」**，同时会得到一个**安全密钥（securityJsCode）**。
+2. 复制 `.env.example` 为 `.env`，填入：
+   ```
+   VITE_AMAP_KEY=你的KEY
+   VITE_AMAP_SECURITY_CODE=你的安全密钥
+   ```
+3. 重启 `npm run dev`。
+
+> `.env` 已被 git 忽略，不会提交。未配置时打开网站会看到引导提示。
+
+## 常用命令
+
+```bash
+npm run dev      # 本地开发（默认 http://localhost:5173）
+npm run build    # 类型检查 + 生产构建
+npm run preview  # 预览构建产物
+```
+
+## 添加 / 修改门店
+
+全部数据在 **`src/data/restaurants.ts`**，往数组里加一条即可，改完保存自动生效：
+
+```ts
+{
+  id: 'xxx',               // 唯一 id
+  name: '店名',
+  category: 'benbang',     // 分类，见同文件 CATEGORIES
+  lng: 121.47, lat: 31.23, // GCJ-02 坐标（高德坐标系）
+  district: '黄浦',
+  address: 'xx路 xx 号',
+  price: 50,               // 人均
+  tags: ['标签'],
+  note: '一句话收录理由',
+  mustOrder: ['招牌菜1', '招牌菜2'],
+}
+```
+
+**坐标拾取**：用官方工具 [高德坐标拾取器](https://lbs.amap.com/tools/picker)，搜索店名后点击地图即可复制精确坐标（必须是 GCJ-02 坐标，不要用 GPS 原始坐标）。
+
+## 功能
+
+- 打开即见上海全景，所有门店一键入镜（自动 fitView）
+- 门店按分类着色标记 + 店名标签，点击弹详情卡（必点菜、人均、导航直达链接）
+- 左侧门店列表：分类筛选 / 关键词搜索 / 按距我排序
+- 右下角按钮获取我的当前位置（蓝点 + 精度圈），列表显示「距我 xx km」
+- 移动端为底部抽屉布局
+
+## 备注
+
+- 浏览器定位要求页面运行在 **HTTPS 或 localhost** 下，并授予定位权限。
+- 定位能力由高德 `AMap.Geolocation` 插件提供，坐标已自动转为 GCJ-02。
+- 定位分两种：手机端一般是 GPS/WiFi 精确定位；**桌面端常见 IP 粗定位兜底**，可能被吸附到 IP 库里的附近锚点（如学校、商圈），偏差可达数公里——此时页面会提示「IP 粗略定位」。想禁用粗定位兜底，在 `src/components/MapView.vue` 的 Geolocation 配置里加 `noIpLocate: true`（定位失败会改为报错提示）。
