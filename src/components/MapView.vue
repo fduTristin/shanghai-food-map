@@ -18,6 +18,8 @@ let infoWindow: AMap.InfoWindow | null = null
 let infoForId: string | null = null
 let userMarker: AMap.Marker | null = null
 let userCircle: AMap.Circle | null = null
+/** 触屏点标记时地图 click 会紧随触发，在此时间窗内吞掉那次误触 */
+let suppressMapClick = false
 
 function markerHtml(color: string, active: boolean): string {
   return `<div class="poi-marker${active ? ' is-active' : ''}" style="--c:${color}"><i></i></div>`
@@ -195,6 +197,10 @@ onMounted(async () => {
       extData: r.id,
     })
     m.on('click', () => {
+      // 触屏上同一次点按会同时触发 marker.click 和 map.click，
+      // 若让 map.click 生效，刚打开的信息卡会立刻被关闭（"一闪而过"）
+      suppressMapClick = true
+      setTimeout(() => (suppressMapClick = false), 150)
       store.selectedId = r.id
     })
     m.setMap(map)
@@ -202,6 +208,7 @@ onMounted(async () => {
   }
 
   map.on('click', () => {
+    if (suppressMapClick) return
     if (store.selectedId) store.selectedId = null
   })
 

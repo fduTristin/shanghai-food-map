@@ -514,6 +514,20 @@ body {
   transform: scale(1.2);
 }
 
+/* 触屏设备上加大标记的触控面积 */
+@media (pointer: coarse) {
+  .poi-marker {
+    width: 28px;
+    height: 28px;
+    border-width: 2.5px;
+  }
+
+  .poi-marker i {
+    width: 11px;
+    height: 11px;
+  }
+}
+
 .poi-marker.is-active {
   transform: scale(1.3);
   box-shadow:
